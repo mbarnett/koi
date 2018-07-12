@@ -1,0 +1,12 @@
+[package]
+name = "wrench"
+version = "0.0.1"
+authors = ["Matt Barnett <matt@sixtyodd.com>"]
+
+[dependencies]
+maplit = "0.1.2"
+log = "0.3.6"
+time = "0.1"
+lazy_static= "0.1"
+nix = "0.7"
+itertools = "0.5.4"
