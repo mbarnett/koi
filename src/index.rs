@@ -2,12 +2,14 @@ use std::collections::HashMap;
 use std::fs;
 
 pub struct Index {
-    hashed_executables: HashMap<String, String>
+    hashed_executables: HashMap<String, String>,
 }
 
 impl Index {
     pub fn new(paths: &[&str]) -> Index {
-        Index{hashed_executables: build_index(paths)}
+        Index {
+            hashed_executables: build_index(paths),
+        }
     }
 
     pub fn lookup(&self, key: &str) -> Option<&String> {

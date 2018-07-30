@@ -1,7 +1,11 @@
-#[macro_use] extern crate itertools;
-#[macro_use] extern crate lazy_static;
-#[macro_use] extern crate log;
-#[macro_use] extern crate maplit;
+#[macro_use]
+extern crate itertools;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate maplit;
 extern crate nix;
 
 mod builtin;
@@ -26,7 +30,10 @@ use std::io;
 use std::io::Write;
 use std::process;
 
-fn result<T, E>(t: std::result::Result<T,E>) -> T where E : std::fmt::Debug {
+fn result<T, E>(t: std::result::Result<T, E>) -> T
+where
+    E: std::fmt::Debug,
+{
     if t.is_ok() {
         return t.unwrap();
     }
@@ -39,7 +46,7 @@ pub enum Token<'a> {
     Quit,
     Pipe,
     Eol,
-    Word {contents: &'a str}
+    Word { contents: &'a str },
 }
 
 fn lex(line: &str) -> Vec<Token> {
@@ -47,7 +54,7 @@ fn lex(line: &str) -> Vec<Token> {
     let chunks = line.split_whitespace();
     let mut cantrip = Vec::new();
     for word in chunks {
-        cantrip.push(Token::Word {contents: word});
+        cantrip.push(Token::Word { contents: word });
     }
     cantrip
 }
@@ -69,7 +76,6 @@ fn main() {
         let mut input = String::new();
 
         if let Ok(bytes_read) = io::stdin().read_line(&mut input) {
-
             if bytes_read == 0 {
                 // EOF!
                 process::exit(libc::EXIT_SUCCESS);
@@ -79,19 +85,8 @@ fn main() {
 
             let mut p = Parse::new(Lex::new(&input));
             let foo = p.parse();
-            // let (cmd, rest) = match p.parse() {
-            //     Ok(ASTNode::Invocation(foo, bar)) => {
-            //         foo, bar
-            //     },
-            //     Err(result) => {
-            //         println!("Error: {}", result);
-            //         continue;
-            //     },
-            //     _ => panic!("wha")
-            // };
 
             println!("Parse result: {:?}", foo);
-
 
             let token_stream = Lex::new(&input);
 
@@ -102,9 +97,9 @@ fn main() {
             let cantrip = lex(input.trim());
 
             let (cmd, rest) = match cantrip.split_first() {
-                Some((&Token::Word{contents: cmd}, rest)) => (cmd, rest),
-                Some(_) => continue, //not implemented
-                None => continue
+                Some((&Token::Word { contents: cmd }, rest)) => (cmd, rest),
+                Some(_) => continue, // not implemented right now
+                None => continue,
             };
 
             if let Some(command) = builtin::lookup(cmd) {
@@ -117,7 +112,7 @@ fn main() {
                         let mut carguments = Vec::new();
                         carguments.push(ccmd);
                         for arg in rest {
-                            if let &Token::Word{contents: carg} = arg {
+                            if let &Token::Word { contents: carg } = arg {
                                 carguments.push(CString::new(carg).unwrap());
                             }
                         }
@@ -126,13 +121,16 @@ fn main() {
 
                         // It shouldn't be possible to reach this unless something went wrong with execv
                         process::exit(libc::EXIT_FAILURE);
-                    } else if let unistd::ForkResult::Parent{child: child_id} = pid {
+                    } else if let unistd::ForkResult::Parent { child: child_id } = pid {
                         loop {
-                            if let Ok(exit_status) = sys::wait::waitpid(child_id, Some(sys::wait::WUNTRACED)) {
+                            if let Ok(exit_status) =
+                                sys::wait::waitpid(child_id, Some(sys::wait::WUNTRACED))
+                            {
                                 match exit_status {
-                                    sys::wait::WaitStatus::Exited(_,_) | sys::wait::WaitStatus::Signaled(_,_,_) => break,
+                                    sys::wait::WaitStatus::Exited(_, _)
+                                    | sys::wait::WaitStatus::Signaled(_, _, _) => break,
                                     // continue waiting
-                                    _ => continue
+                                    _ => continue,
                                 }
                             } else {
                                 // panic?
@@ -140,7 +138,7 @@ fn main() {
                         }
                     }
                 } else {
-                    // couldn't fork
+                    // couldn't fork, do something useful here (exit w/ error message)
                 }
             } else {
                 println!("Not found: {:?}", cmd);

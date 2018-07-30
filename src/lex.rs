@@ -12,16 +12,17 @@ pub enum Token {
     Str(String),
     Pipe,
     UnterminatedString,
-    //Illegal
 }
 
 pub struct Lex<'a> {
-    iter: PutBack<Chars<'a>>
+    iter: PutBack<Chars<'a>>,
 }
 
 impl<'a> Lex<'a> {
     pub fn new(input: &str) -> Lex {
-        Lex{iter: itertools::put_back(input.chars())}
+        Lex {
+            iter: itertools::put_back(input.chars()),
+        }
     }
 
     pub fn produce(&mut self) -> Option<Token> {
@@ -29,7 +30,10 @@ impl<'a> Lex<'a> {
             let token = match c {
                 PIPE_DELIM => Token::Pipe,
                 STRING_DELIM => self.produce_string(),
-                _ => {self.put_back(c); self.produce_morpheme()}
+                _ => {
+                    self.put_back(c);
+                    self.produce_morpheme()
+                }
             };
             return Some(token);
         } else {
@@ -43,7 +47,9 @@ impl<'a> Lex<'a> {
 
     fn next_non_whitespace(&mut self) -> Option<char> {
         // drain whitespace
-        self.iter.take_while_ref(|c| c.is_whitespace()).foreach(|_|());
+        self.iter
+            .take_while_ref(|c| c.is_whitespace())
+            .foreach(|_| ());
         self.iter.next()
     }
 
@@ -54,7 +60,7 @@ impl<'a> Lex<'a> {
         // otherwise we have an UnterminatedString
         match self.iter.next() {
             Some('"') => Token::Str(string),
-            _ => Token::UnterminatedString
+            _ => Token::UnterminatedString,
         }
     }
 
@@ -74,16 +80,19 @@ impl<'a> Iterator for Lex<'a> {
 
 #[test]
 fn basic_parse() {
-    let mut lexer = Lex::new("foo -m \"a long string with       stuff\" -a bar | baz \"unterminated string");
+    let mut lexer =
+        Lex::new("foo -m \"a long string with       stuff\" -a bar | baz \"unterminated string");
 
-    let expectations = [Token::Morpheme("foo".to_owned()),
-                        Token::Morpheme("-m".to_owned()),
-                        Token::Str("a long string with       stuff".to_owned()),
-                        Token::Morpheme("-a".to_owned()),
-                        Token::Morpheme("bar".to_owned()),
-                        Token::Pipe,
-                        Token::Morpheme("baz".to_owned()),
-                        Token::UnterminatedString];
+    let expectations = [
+        Token::Morpheme("foo".to_owned()),
+        Token::Morpheme("-m".to_owned()),
+        Token::Str("a long string with       stuff".to_owned()),
+        Token::Morpheme("-a".to_owned()),
+        Token::Morpheme("bar".to_owned()),
+        Token::Pipe,
+        Token::Morpheme("baz".to_owned()),
+        Token::UnterminatedString,
+    ];
 
     for expected in expectations.iter() {
         if let Some(tok) = lexer.next() {

@@ -1,28 +1,30 @@
 use lex::Lex;
 use lex::Token;
-use std::result;
 use std::iter::Peekable;
+use std::result;
 
 type Result<T> = result::Result<T, String>;
 
 #[derive(Debug)]
 pub struct Invocation {
     command: Invocable,
-    expression: Vec<Token>
+    expression: Vec<Token>,
 }
 
 #[derive(Debug)]
 pub struct Invocable {
-    token: Token
+    token: Token,
 }
 
 pub struct Parse<'a> {
-    token_stream: Peekable<Lex<'a>>
+    token_stream: Peekable<Lex<'a>>,
 }
 
 impl<'a> Parse<'a> {
     pub fn new(tokenizer: Lex) -> Parse {
-        Parse {token_stream: tokenizer.peekable()}
+        Parse {
+            token_stream: tokenizer.peekable(),
+        }
     }
 
     pub fn parse(&mut self) -> Result<Invocation> {
@@ -37,16 +39,19 @@ impl<'a> Parse<'a> {
     }
 
     fn parse_invocation(&mut self) -> Result<Invocation> {
-        let invocable  = self.parse_invocable()?;
+        let invocable = self.parse_invocable()?;
         let arguments = self.parse_list()?;
-        Ok(Invocation{command: invocable, expression: arguments})
+        Ok(Invocation {
+            command: invocable,
+            expression: arguments,
+        })
     }
 
     fn parse_invocable(&mut self) -> Result<Invocable> {
         match self.token_stream.next() {
-            Some(token @ Token::Morpheme(_)) => Ok(Invocable{token: token}),
+            Some(token @ Token::Morpheme(_)) => Ok(Invocable { token: token }),
             Some(other) => return Err(format!("Unexpected {:?}", other)),
-            None => return Err(format!("Unexpected end of input"))
+            None => return Err(format!("Unexpected end of input")),
         }
     }
 
@@ -54,13 +59,13 @@ impl<'a> Parse<'a> {
         let mut expr = Vec::new();
 
         loop {
-             match self.token_stream.peek() {
+            match self.token_stream.peek() {
                 Some(&Token::Morpheme(_)) | Some(&Token::Str(_)) => {
                     if let Some(token) = self.token_stream.next() {
                         expr.push(token)
                     }
-                },
-                _ => return Ok(expr)
+                }
+                _ => return Ok(expr),
             }
         }
     }
@@ -73,5 +78,5 @@ fn test_parse() {
     use lex::Token::*;
     use parse::ASTNode::*;
 
-//    assert_eq!(Ok(Invocation(Invocable(Morpheme("ls")), Expression(Some([Morpheme("-al")])))), parser.parse());
+    //    assert_eq!(Ok(Invocation(Invocable(Morpheme("ls")), Expression(Some([Morpheme("-al")])))), parser.parse());
 }

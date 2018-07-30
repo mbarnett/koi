@@ -26,7 +26,7 @@ fn cd(args: &[::Token]) {
         let home_dir = env::home_dir().unwrap();
         let home = home_dir.as_path().to_str().unwrap();
         report_if_fails("cd", unistd::chdir(home));
-    } else if let Some(&::Token::Word{contents: target}) = args.first() {
+    } else if let Some(&::Token::Word { contents: target }) = args.first() {
         report_if_fails("cd", unistd::chdir(target));
     }
 }
