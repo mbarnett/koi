@@ -8,32 +8,13 @@ type Result<T> = result::Result<T, String>;
 #[derive(Debug)]
 pub struct Invocation {
     command: Invocable,
-    list: Vec<Token>
+    expression: Vec<Token>
 }
 
 #[derive(Debug)]
 pub struct Invocable {
     token: Token
 }
-
-//
-// pub struct
-//
-// pub enum ASTNode {
-//     Invocation(Box<ASTNode>, Box<ASTNode>),
-//     Invocable(Token),
-//     Expression(Option<Vec<Token>>)
-// }
-
-// macro_rules! expect {
-//     ($x:expr, $y:path) => {{
-//         match $x {
-//             Some(token @ $y) => Ok(token),
-//             Some(token) => Err(format!("Unexpected {}", token)),
-//             None => Err(format!("Unexpected end of input"))
-//         }
-//     }}
-// }
 
 pub struct Parse<'a> {
     token_stream: Peekable<Lex<'a>>
@@ -58,7 +39,7 @@ impl<'a> Parse<'a> {
     fn parse_invocation(&mut self) -> Result<Invocation> {
         let invocable  = self.parse_invocable()?;
         let arguments = self.parse_list()?;
-        Ok(Invocation{invokee: invocable, expression: arguments})
+        Ok(Invocation{command: invocable, expression: arguments})
     }
 
     fn parse_invocable(&mut self) -> Result<Invocable> {
