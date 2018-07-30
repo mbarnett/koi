@@ -1,0 +1,18 @@
+- Finish Parser
+- Parser tests
+- Elaboration/Simplification phases
+- Switch to using above for execution
+- integrate readline or linenoise or etc for input
+- history using above
+- controling ENV variables
+- index warnings when user writable exes shadow
+- file piping (sketch: name = execute, name w/ dot & no args = file heuristic, path = if target is +x or not)
+- tee support
+- builtin lifecycle -- cd::after {} -- for stuff like rvm
+- tab completion
+- globbing
+- stderr and more complex pipelines
+- variables
+- control flow
+- xargs?
+- isolating output strings (basic not-quite i18n prep)
